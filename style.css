@@ -1,0 +1,962 @@
+/* ═══════════════════════════════════════════════════════
+   SARANYA & ARIVAZHAGAN — ENGAGEMENT INVITATION
+   style.css  |  Premium Luxury Theme
+   Reorganized, deduplicated, and made fully responsive.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── RESET & BOX MODEL ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── CSS CUSTOM PROPERTIES (design tokens) ── */
+:root {
+  /* Palette */
+  --gold:        #C8A96E;
+  --gold-light:  #E8D4A0;
+  --gold-deep:   #9A7240;
+  --rose:        #D4738A;
+  --rose-light:  #F0B8C8;
+  --cream:       #FDF6EC;
+  --deep:        #1A0A00;
+  --text:        #3B2010;
+  --bg-dark:     #0D0500;
+
+  /* Glass cards */
+  --glass-bg:     rgba(255, 240, 210, 0.04);
+  --glass-blur:   18px;
+  --glass-border: rgba(200, 169, 110, 0.22);
+  --glass-shadow: 0 8px 40px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--glass-border);
+
+  /* Spacing scale — keeps vertical rhythm consistent everywhere */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 60px;
+
+  /* Layout */
+  --container-max: 700px;
+  --section-padding-y: clamp(48px, 8vw, 80px);
+  --section-padding-x: clamp(16px, 5vw, 32px);
+}
+
+/* ── BASE ── */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Cormorant Garamond', serif;
+  background: var(--bg-dark);
+  color: var(--cream);
+  overflow-x: hidden;
+  min-height: 100dvh;
+  position: relative;
+}
+sup{
+    font-size:0.5em;
+    vertical-align:super;
+    margin-left:1px;
+}
+
+/* Ambient drifting stars across the whole page */
+body::before {
+  content: "✨ ✦ ✨ ✦ ✨";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  animation: stars 12s linear infinite;
+  opacity: 0.25;
+  font-size: 20px;
+  z-index: 0;
+}
+@keyframes stars {
+  from { transform: translateY(100vh); }
+  to   { transform: translateY(-100vh); }
+}
+
+/* ══════════════════════════════════════════════════════
+   BACKGROUND CANVAS (bokeh / light rays / hearts)
+══════════════════════════════════════════════════════ */
+#bgCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+#bgCanvas.active { opacity: 1; }
+
+/* ══════════════════════════════════════════════════════
+   ENTRANCE SCREEN
+══════════════════════════════════════════════════════ */
+#entrance {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 60%, #1e0900 0%, #0D0500 70%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: pointer;
+  overflow: hidden;
+  transition: opacity 1s ease, visibility 1s ease, transform 1s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  /* GPU-friendly transition: only transform + opacity are animated */
+  will-change: opacity, transform;
+}
+#entrance.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(1.06);
+}
+.om-symbol,
+.tamil-om{
+    font-family:
+    "Noto Sans Tamil",
+    "Latha",
+    "Vijaya",
+    serif;
+
+    font-size:72px;
+    color:#d4af37;
+
+    text-shadow:
+        0 0 10px rgba(212,175,55,.6),
+        0 0 25px rgba(212,175,55,.4),
+        0 0 45px rgba(212,175,55,.2);
+
+    display:inline-block;
+
+    animation:
+        glow 3s ease-in-out infinite,
+        floatOm 5s ease-in-out infinite;
+}
+
+@keyframes floatOm{
+    0%,100%{
+        transform:translateY(0);
+    }
+    50%{
+        transform:translateY(-8px);
+    }
+}
+#entranceParticles {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ── KOLAM SELF-DRAW ANIMATION ── */
+.entrance-kolam-wrap {
+  position: relative;
+  width: clamp(140px, 38vw, 180px);
+  height: clamp(140px, 38vw, 180px);
+  margin-bottom: var(--space-7);
+  animation: rotateSlow 22s linear infinite;
+  will-change: transform;
+}
+.entrance-kolam { width: 100%; height: 100%; }
+
+.kolam-ring {
+  stroke-dashoffset: 600;
+  stroke-dasharray: 600;
+  animation: drawLine var(--dur, 1.4s) ease forwards;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes drawLine { to { stroke-dashoffset: 0; } }
+
+.kolam-petal {
+  animation: fadeInEl 0.5s ease forwards;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes fadeInEl { to { opacity: 0.5; } }
+
+@keyframes rotateSlow { to { transform: rotate(360deg); } }
+
+/* ── ENTRANCE TEXT ── */
+.entrance-title {
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  color: var(--gold-light);
+  text-align: center;
+  line-height: 1.3;
+  margin-bottom: var(--space-2);
+  opacity: 0;
+  animation: fadeSlideUp 1s ease forwards 2.8s;
+}
+.entrance-sub {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: var(--space-8);
+  opacity: 0;
+  animation: fadeSlideUp 1s ease forwards 3.2s;
+}
+
+/* ── TAP BUTTON ── */
+.tap-btn {
+  background: linear-gradient(135deg, var(--gold-deep), var(--gold), var(--gold-deep));
+  color: var(--deep);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  padding: 15px 38px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(200, 169, 110, 0.4);
+  opacity: 0;
+  animation:
+    fadeSlideUp 1s ease forwards 3.6s,
+    pulse 2s ease-in-out 3.6s infinite;
+  will-change: transform, box-shadow;
+}
+.tap-btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(200, 169, 110, 0.3); transform: scale(1); }
+  50%      { box-shadow: 0 0 45px rgba(200, 169, 110, 0.7); transform: scale(1.04); }
+}
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════════════════
+   FLOATING PETALS
+══════════════════════════════════════════════════════ */
+.petals-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+.petal {
+  position: absolute;
+  top: -60px;
+  font-size: 1.2rem;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: fallPetal linear infinite;
+}
+@keyframes fallPetal {
+  0%   { opacity: 0;   transform: translateY(0) rotate(0deg) translateX(0); }
+  10%  { opacity: 0.7; }
+  90%  { opacity: 0.3; }
+  100% { opacity: 0;   transform: translateY(110vh) rotate(720deg) translateX(var(--drift, 30px)); }
+}
+
+/* ══════════════════════════════════════════════════════
+   MAIN CONTENT WRAPPER
+══════════════════════════════════════════════════════ */
+#main {
+  display: none;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(180deg,
+    #0D0500 0%,
+    #1a0800 15%,
+    #0f0400 40%,
+    #1a0a02 70%,
+    #0D0500 100%);
+}
+#main.show {
+  display: block;
+  animation: mainFadeIn 1.2s ease forwards;
+}
+@keyframes mainFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── SECTION WRAPPER (shared layout for every content block) ── */
+.section {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--section-padding-y) var(--section-padding-x);
+  text-align: center;
+  /* Vertical rhythm: every section's content centers as a flex column */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── FADE-IN ON SCROLL ── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.85s ease, transform 0.85s ease;
+  will-change: opacity, transform;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ══════════════════════════════════════════════════════
+   HERO SECTION
+══════════════════════════════════════════════════════ */
+.hero-murugan {
+  /* Overrides the shared .section padding intentionally and
+     wins the cascade because it is declared after .section. */
+  padding-top: clamp(56px, 10vw, 96px);
+  padding-bottom: clamp(48px, 8vw, 72px);
+  overflow: hidden;
+}
+
+.hero-murugan::before {
+  content: "✨ ✨ ✨ ✨ ✨";
+  position: absolute;
+  inset: 0;
+  animation: heroSparkleDrift 18s linear infinite;
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes heroSparkleDrift {
+  0%   { transform: translateY(100%); }
+  100% { transform: translateY(-100%); }
+}
+
+.om-symbol {
+  font-size: 2.5rem;
+  color: var(--gold);
+  display: block;
+  margin-bottom: var(--space-3);
+  animation: glowOM 3s ease-in-out infinite;
+  position: relative;
+  z-index: 2;
+}
+@keyframes glowOM {
+  0%, 100% { text-shadow: 0 0 10px rgba(200, 169, 110, 0.4); }
+  50%      { text-shadow: 0 0 28px rgba(200, 169, 110, 0.95), 0 0 55px rgba(200, 169, 110, 0.4); }
+}
+
+.blessing-text {
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  color: var(--gold-light);
+  margin-bottom: var(--space-2);
+  font-style: italic;
+  position: relative;
+  z-index: 2;
+}
+.family-text {
+  font-size: 1rem;
+  color: rgba(232, 212, 160, 0.7);
+  margin-bottom: var(--space-7);
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
+  max-width: 32ch;
+}
+
+/* Murugan image + glow + overlaid names — single positioning context */
+.murugan-container {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 330 / 420;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: var(--space-8) auto 0;
+  z-index: 2;
+}
+
+.murugan-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(220px, 60vw, 380px);
+  height: clamp(220px, 60vw, 380px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(255, 196, 90, 0.45),
+    rgba(255, 180, 60, 0.12),
+    transparent 75%);
+  filter: blur(15px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.murugan-img {
+  width: 100%;
+  max-width: 330px;
+  height: auto;
+  opacity: 0.55;
+  position: relative;
+  z-index: 2;
+  border-radius: 20px;
+  animation: muruganFloat 6s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes muruganFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+
+/* Names overlaid near the base of the image, centered as a unit */
+.names-wrap {
+  position: absolute;
+  bottom: clamp(24px, 10%, 70px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  text-align: center;
+  z-index: 3;
+  font-weight: normal;
+  line-height: 1.1;
+  padding: 0 var(--space-3);
+}
+.name-bride,
+.name-groom {
+  display: block;
+  font-family: 'Luxurious Script', cursive;
+  font-size: clamp(2.6rem, 11vw, 5rem);
+  text-shadow: 0 0 25px rgba(0, 0, 0, 0.85);
+}
+.name-bride { color: var(--rose-light); }
+.name-groom { color: var(--gold-light); }
+.and-symbol {
+  display: block;
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(1.8rem, 7vw, 3rem);
+  color: #d8b067;
+  margin: var(--space-1) 0;
+}
+
+/* ══════════════════════════════════════════════════════
+   DIVIDER
+══════════════════════════════════════════════════════ */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-6) 0;
+  color: var(--gold);
+  font-size: 1rem;
+  width: 100%;
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold-deep), transparent);
+}
+
+/* ══════════════════════════════════════════════════════
+   OCCASION LABEL (reused across sections)
+══════════════════════════════════════════════════════ */
+.occasion-label {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+.closing-label { margin-top: var(--space-6); }
+
+/* ══════════════════════════════════════════════════════
+   DATE & TIME GRID
+══════════════════════════════════════════════════════ */
+.datetime-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+  width: 100%;
+  margin-top: var(--space-2);
+}
+.dt-card { padding: var(--space-6) var(--space-4); }
+.dt-icon {
+  font-size: 1.6rem;
+  margin-bottom: var(--space-2);
+  display: block;
+}
+.dt-label {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: var(--space-2);
+}
+.dt-value {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.1rem;
+  color: var(--gold-light);
+  line-height: 1.3;
+}
+.dt-sub {
+  font-size: 0.8rem;
+  color: rgba(232, 212, 160, 0.6);
+  margin-top: var(--space-1);
+  font-style: italic;
+}
+
+/* ══════════════════════════════════════════════════════
+   GLASSMORPHISM CARDS (shared by every .card)
+══════════════════════════════════════════════════════ */
+.card {
+  width: 100%;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: var(--space-7) var(--space-6);
+  margin: var(--space-5) 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(200, 169, 110, 0.13) 0%, transparent 60%),
+    linear-gradient(135deg, rgba(255, 240, 200, 0.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+/* Golden shimmer border on hover/focus */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 21px;
+  background: linear-gradient(135deg,
+    rgba(200, 169, 110, 0.6) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(200, 169, 110, 0.4) 100%);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 1px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.card:hover::after { opacity: 1; }
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(200, 169, 110, 0.35);
+}
+.card:focus-within {
+  box-shadow: 0 14px 60px rgba(0, 0, 0, 0.6), 0 0 0 2px var(--gold);
+}
+
+.card-icon  { font-size: 2rem; margin-bottom: var(--space-3); display: block; }
+.card-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.1rem;
+  font-weight: normal;
+  color: var(--gold-light);
+  margin-bottom: var(--space-2);
+}
+
+/* ══════════════════════════════════════════════════════
+   VENUE CARD
+══════════════════════════════════════════════════════ */
+.venue-name {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(1.8rem, 6vw, 2.4rem);
+  color: var(--gold);
+  margin: var(--space-2) 0;
+}
+.venue-address {
+  font-size: 0.9rem;
+  color: rgba(232, 212, 160, 0.75);
+  line-height: 1.7;
+  margin-bottom: var(--space-5);
+}
+.map-embed-wrap {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 0 0 var(--space-5);
+  border: 1px solid rgba(200, 169, 110, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  aspect-ratio: 16 / 10;
+}
+.map-embed {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.map-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: linear-gradient(135deg, var(--gold-deep), var(--gold));
+  color: var(--deep);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  padding: 13px 30px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(200, 169, 110, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.map-btn:hover,
+.map-btn:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 35px rgba(200, 169, 110, 0.55);
+}
+.map-btn:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 3px;
+}
+
+/* ══════════════════════════════════════════════════════
+   FLIP COUNTDOWN
+══════════════════════════════════════════════════════ */
+.countdown-wrap { padding: var(--space-7) var(--space-5); }
+.countdown-title {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: var(--space-7);
+}
+.countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+.cd-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0; /* prevents grid item overflow */
+}
+.cd-label {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+/* ── ODOMETER UNIT (rolling digit scroller) ──
+   Each unit (days/hours/mins/secs) is a row of digit reels.
+   Every reel is a small window (.digit-reel) over a vertical
+   strip (.digit-strip) containing the digits 0–9. Updating a
+   value just changes the strip's transform — the browser
+   animates the transition, producing the rolling/scroll effect. */
+:root {
+  --reel-h: clamp(1.6rem, 6.5vw, 2.3rem);
+  --reel-w: clamp(15px, 4.2vw, 21px);
+}
+
+.odometer {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  padding: 6px 5px;
+  background: linear-gradient(180deg,
+    rgba(200, 169, 110, 0.18) 0%,
+    rgba(200, 169, 110, 0.08) 100%);
+  border: 1px solid rgba(200, 169, 110, 0.28);
+  border-radius: 10px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.digit-reel {
+  position: relative;
+  width: var(--reel-w);
+  height: var(--reel-h);
+  overflow: hidden;
+  border-radius: 3px;
+}
+/* Subtle top/bottom vignette so digits appear to scroll under glass */
+.digit-reel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(0, 0, 0, 0.45) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(0, 0, 0, 0.45) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.digit-strip {
+  display: flex;
+  flex-direction: column;
+  /* Smooth, slightly elastic roll — tuned so quick 1-second ticks
+     never feel jerky and longer rolls (carries) still look fluid. */
+  transition: transform 0.55s cubic-bezier(0.22, 0.9, 0.3, 1);
+  will-change: transform;
+}
+.digit-strip .digit {
+  height: var(--reel-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.05rem, 4.2vw, 1.5rem);
+  color: var(--gold-light);
+  line-height: 1;
+  user-select: none;
+}
+
+.countdown-arrived {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  color: var(--rose-light);
+  animation: pulseText 1.5s ease-in-out infinite;
+}
+@keyframes pulseText {
+  0%, 100% { text-shadow: 0 0 10px rgba(212, 115, 138, 0.4); }
+  50%      { text-shadow: 0 0 25px rgba(212, 115, 138, 0.9); }
+}
+
+/* ══════════════════════════════════════════════════════
+   SCRATCH CARD
+══════════════════════════════════════════════════════ */
+.scratch-label {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+.scratch-hint {
+  font-size: 0.85rem;
+  color: rgba(232, 212, 160, 0.6);
+  margin-bottom: var(--space-4);
+  font-style: italic;
+}
+.scratch-container {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  aspect-ratio: 280 / 110;
+  margin: 0 auto;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(200, 169, 110, 0.3);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+.scratch-reveal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a0800, #2a1200);
+}
+.scratch-date-text {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  color: var(--gold-light);
+  text-align: center;
+  line-height: 1.2;
+}
+.scratch-date-sub {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-top: var(--space-1);
+  text-align: center;
+}
+canvas#scratchCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+  border-radius: 14px;
+}
+.scratched-msg {
+  font-size: 0.75rem;
+  color: var(--gold);
+  margin-top: var(--space-3);
+  display: none;
+  font-style: italic;
+  animation: fadeSlideUp 0.6s ease;
+}
+
+/* ══════════════════════════════════════════════════════
+   QUOTES & CLOSING
+══════════════════════════════════════════════════════ */
+.tamil-quote {
+  font-size: clamp(1rem, 3.5vw, 1.3rem);
+  color: rgba(232, 212, 160, 0.85);
+  line-height: 2.2;
+  font-style: italic;
+  text-align: center;
+}
+.blessing-quote {
+  font-size: clamp(0.9rem, 3vw, 1.1rem);
+  color: rgba(232, 212, 160, 0.8);
+  line-height: 2;
+  font-style: italic;
+  text-align: center;
+  max-width: 42ch;
+}
+.closing-names {
+  font-family: 'Luxurious Script', cursive;
+  font-size: clamp(2rem, 7vw, 3rem);
+  color: var(--gold-light);
+  margin: var(--space-3) 0;
+}
+.closing-sub {
+  color: rgba(232, 212, 160, 0.5);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* ══════════════════════════════════════════════════════
+   MUSIC PLAYER (fixed)
+══════════════════════════════════════════════════════ */
+#musicBar {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+.music-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-deep), var(--gold));
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 22px rgba(200, 169, 110, 0.55);
+  transition: transform 0.2s ease;
+}
+.music-btn:hover  { transform: scale(1.12); }
+.music-btn:active { transform: scale(0.95); }
+.music-btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.music-label {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   Mobile-first base styles above; refinements below.
+══════════════════════════════════════════════════════ */
+
+/* Small phones */
+@media (max-width: 400px) {
+  .countdown-grid { gap: var(--space-2); max-width: 270px; }
+  .datetime-grid  { gap: var(--space-3); }
+}
+
+/* Medium phones */
+@media (max-width: 520px) {
+  .countdown-grid { gap: 10px; max-width: 290px; }
+}
+
+/* Tablets */
+@media (min-width: 600px) {
+  .countdown-grid { gap: var(--space-4); max-width: 360px; }
+}
+
+/* Laptops / small desktops */
+@media (min-width: 900px) {
+  .countdown-grid { gap: var(--space-5); max-width: 380px; }
+  :root {
+    --section-padding-y: clamp(64px, 6vw, 100px);
+  }
+}
+
+/* Large desktops */
+@media (min-width: 1440px) {
+  :root {
+    --container-max: 760px;
+  }
+  .murugan-container { max-width: 420px; }
+}
+
+/* 4K / very large screens */
+@media (min-width: 2200px) {
+  html { font-size: 20px; }
+  :root {
+    --container-max: 880px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   REDUCED MOTION — disable/shorten all animation for users
+   who request it, while keeping content fully visible.
+══════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .kolam-ring { stroke-dashoffset: 0; }
+  .kolam-petal { opacity: 0.5; }
+  .entrance-title,
+  .entrance-sub,
+  .tap-btn { opacity: 1; }
+  .digit-strip { transition: none; }
+}
